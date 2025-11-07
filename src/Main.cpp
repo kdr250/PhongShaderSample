@@ -70,6 +70,9 @@ bool compileShader(const std::string& fileName, GLenum shaderType, GLuint& outSh
     if (shaderFile.is_open()) {
         // Read all the text into a string
         std::stringstream sstream;
+#ifdef __EMSCRIPTEN__
+        sstream << "#version 300 es" << std::endl << "// ";
+#endif
         sstream << shaderFile.rdbuf();
         std::string contents = sstream.str();
         const char* contentsChar = contents.c_str();
