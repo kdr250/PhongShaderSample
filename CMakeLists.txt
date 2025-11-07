@@ -20,6 +20,8 @@ else()
     find_package(GLEW REQUIRED)
 endif()
 
+find_package(glm CONFIG REQUIRED)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
@@ -42,12 +44,18 @@ if (EMSCRIPTEN)
 
     file(COPY ${PROJECT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
 
+    target_link_libraries(
+        main PRIVATE
+        glm::glm
+    )
+
 else()
 
     target_link_libraries(
         main PRIVATE
         glfw
         GLEW::GLEW
+        glm::glm
     )
 
     add_custom_command(

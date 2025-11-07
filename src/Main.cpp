@@ -2,13 +2,27 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <chrono>
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/ext/matrix_clip_space.hpp>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #include <emscripten/html5.h>
 #endif
+
+constexpr int WIDTH = 640;
+constexpr int HEIGHT = 480;
+constexpr float ASPECT = (float)WIDTH / (float)HEIGHT;
 
 GLFWwindow* window = nullptr;
 
@@ -127,6 +141,11 @@ bool loadShaders(const std::string& vertName, const std::string& fragName) {
     return true;
 }
 
+void setUniformMatrix4(const std::string& name, const glm::mat4& matrix) {
+    auto location = glGetUniformLocation(shaderProgram, name.c_str());
+    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+}
+
 void shutdown() {
 #ifdef __EMSCRIPTEN__
     emscripten_cancel_main_loop();
@@ -159,6 +178,25 @@ void mainLoop() {
     // draw
     glUseProgram(shaderProgram);
     glBindVertexArray(vertexArray);
+
+    static auto startTime = std::chrono::high_resolution_clock::now();
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    float time =
+        std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime)
+            .count();
+
+    auto model =
+        glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+    auto view =
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+    auto projection = glm::perspective(glm::radians(70.0f), ASPECT, 0.1f, 1000.0f);
+
+    setUniformMatrix4("uModel", model);
+    setUniformMatrix4("uView", view);
+    setUniformMatrix4("uProjection", projection);
+
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
     // swap double buffer
@@ -192,7 +230,7 @@ int main() {
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     // create window
-    window = glfwCreateWindow(640, 480, "PhongShaderSample", NULL, NULL);
+    window = glfwCreateWindow(WIDTH, HEIGHT, "PhongShaderSample", NULL, NULL);
     if (!window) {
         glfwTerminate();
         return EXIT_FAILURE;

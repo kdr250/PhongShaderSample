@@ -8,6 +8,7 @@
         {
             "name": "glew",
             "platform": "!wasm32"
-        }
+        },
+        "glm"
     ]
 }
