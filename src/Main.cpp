@@ -36,10 +36,10 @@ GLuint fragShader = 0;
 bool createVertexArray() {
     // clang-format off
     float vertices[] = {
-        -0.5f, 0.5f,  0.0f, // top left
-        0.5f,  0.5f,  0.0f, // top right
-        0.5f,  -0.5f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f // bottom left
+        -0.5f, 0.5f,  0.0f, 0.0f, 0.0f, 1.0f, // top left
+        0.5f,  0.5f,  0.0f, 0.0f, 0.0f, 1.0f,  // top right
+        0.5f,  -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f // bottom left
     };
     // clang-format on
     unsigned int numVerts = 4;
@@ -53,7 +53,7 @@ bool createVertexArray() {
     // Create vertex buffer
     glGenBuffers(1, &vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, numVerts * 3 * sizeof(float), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, numVerts * 6 * sizeof(float), vertices, GL_STATIC_DRAW);
 
     // Create index buffer
     glGenBuffers(1, &indexBuffer);
@@ -63,7 +63,15 @@ bool createVertexArray() {
 
     // Specify the vertex attributes
     glEnableVertexAttribArray(0); // position
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);
+
+    glEnableVertexAttribArray(1); // normal
+    glVertexAttribPointer(1,
+                          3,
+                          GL_FLOAT,
+                          GL_FALSE,
+                          sizeof(float) * 6,
+                          reinterpret_cast<void*>(sizeof(float) * 3));
 
     return true;
 }
@@ -141,6 +149,11 @@ bool loadShaders(const std::string& vertName, const std::string& fragName) {
     return true;
 }
 
+void setUniformVec3(const std::string& name, const glm::vec3& value) {
+    auto location = glGetUniformLocation(shaderProgram, name.c_str());
+    glUniform3fv(location, 1, glm::value_ptr(value));
+}
+
 void setUniformMatrix4(const std::string& name, const glm::mat4& matrix) {
     auto location = glGetUniformLocation(shaderProgram, name.c_str());
     glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
@@ -188,14 +201,16 @@ void mainLoop() {
     auto model =
         glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-    auto view =
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 2.0f);
+    auto view = glm::lookAt(
+        cameraPos, cameraPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
     auto projection = glm::perspective(glm::radians(70.0f), ASPECT, 0.1f, 1000.0f);
 
     setUniformMatrix4("uModel", model);
     setUniformMatrix4("uView", view);
     setUniformMatrix4("uProjection", projection);
+    setUniformVec3("uCameraPos", cameraPos);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
