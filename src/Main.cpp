@@ -40,16 +40,31 @@ int main() {
         return EXIT_FAILURE;
     }
 
+    // specify OpengGL version
+    glfwWindowHint(GLFW_OPENGL_CORE_PROFILE, GLFW_TRUE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
+    auto display = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    glfwWindowHint(GLFW_REFRESH_RATE, display->refreshRate);
+    glfwWindowHint(GLFW_RED_BITS, display->redBits);
+    glfwWindowHint(GLFW_GREEN_BITS, display->greenBits);
+    glfwWindowHint(GLFW_BLUE_BITS, display->blueBits);
+    glfwWindowHint(GLFW_SAMPLES, 4);
+
+    glfwWindowHint(GLFW_MAXIMIZED, GLFW_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
     // create window
     window = glfwCreateWindow(640, 480, "PhongShaderSample", NULL, NULL);
     if (!window) {
         glfwTerminate();
         return EXIT_FAILURE;
     }
-
-    // specify version
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
     // create context
     glfwMakeContextCurrent(window);
