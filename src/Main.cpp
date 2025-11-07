@@ -2,6 +2,38 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#include <emscripten/html5.h>
+#endif
+
+GLFWwindow* window = nullptr;
+
+void shutdown() {
+#ifdef __EMSCRIPTEN__
+    emscripten_cancel_main_loop();
+#endif
+    glfwDestroyWindow(window);
+    glfwTerminate();
+}
+
+void mainLoop() {
+#ifdef __EMSCRIPTEN__
+    if (glfwWindowShouldClose(window) != GL_FALSE) {
+        shutdown();
+        return;
+    }
+#endif
+
+    // clear buffer
+    glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // swap double buffer
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+}
+
 int main() {
     // initialize glfw
     if (glfwInit() == GL_FALSE) {
@@ -9,7 +41,7 @@ int main() {
     }
 
     // create window
-    GLFWwindow* window = glfwCreateWindow(640, 480, "PhongShaderSample", NULL, NULL);
+    window = glfwCreateWindow(640, 480, "PhongShaderSample", NULL, NULL);
     if (!window) {
         glfwTerminate();
         return EXIT_FAILURE;
@@ -28,19 +60,15 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    // game loop
+#ifdef __EMSCRIPTEN__
+    emscripten_set_main_loop(mainLoop, 0, 1);
+#else
     while (glfwWindowShouldClose(window) == GL_FALSE) {
-        // clear buffer
-        glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // swap double buffer
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+        mainLoop();
     }
 
-    // terminate glfw
-    glfwTerminate();
+    shutdown();
+#endif
 
     return EXIT_SUCCESS;
 }
