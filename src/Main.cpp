@@ -36,15 +36,50 @@ GLuint fragShader = 0;
 bool createVertexArray() {
     // clang-format off
     float vertices[] = {
-        -0.5f, 0.5f,  0.0f, 0.0f, 0.0f, 1.0f, // top left
-        0.5f,  0.5f,  0.0f, 0.0f, 0.0f, 1.0f,  // top right
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom left
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom left
-        0.5f,  0.5f,  0.0f, 0.0f, 0.0f, 1.0f,  // top right
-        0.5f,  -0.5f, 0.0f, 0.0f, 0.0f, 1.0f  // bottom right
+        // positions          // normals           
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  
+
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  
+
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  
+
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  
+
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  
+
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f 
     };
     // clang-format on
-    unsigned int numVerts = 6;
 
     // Create vertex array
     glGenVertexArrays(1, &vertexArray);
@@ -53,7 +88,7 @@ bool createVertexArray() {
     // Create vertex buffer
     glGenBuffers(1, &vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, numVerts * 6 * sizeof(float), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // Specify the vertex attributes
     glEnableVertexAttribArray(0); // position
@@ -180,7 +215,7 @@ void mainLoop() {
 
     // clear buffer
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // draw
     glUseProgram(shaderProgram);
@@ -206,7 +241,7 @@ void mainLoop() {
     setUniformMatrix4("uProjection", projection);
     setUniformVec3("uCameraPos", cameraPos);
 
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 
     // swap double buffer
     glfwSwapBuffers(window);
@@ -253,6 +288,8 @@ int main() {
     if (glewInit() != GLEW_OK) {
         return EXIT_FAILURE;
     }
+
+    glEnable(GL_DEPTH_TEST);
 
     if (!loadShaders("resources/Sample.vert", "resources/Sample.frag")) {
         std::cout << "Failed to load shaders" << std::endl;
