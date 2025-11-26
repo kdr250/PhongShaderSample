@@ -19,5 +19,5 @@ void main()
     gl_Position = position;
     
     fragWorldPos = worldPos.xyz;
-    fragNormal = inNormal;
+    fragNormal = mat3(transpose(inverse(uModel))) * inNormal;
 }
